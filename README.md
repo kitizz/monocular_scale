@@ -5,12 +5,12 @@ Source code for estimating scale of tracking data collected on smart phones and 
 ## Usage
 `src/ScaleFit.py` is where it's all at.
 
-
-### Preparing the data
 The data for a sequence should all be in one directory. It should contain
  - The video file: `videoName.[mp4,mov,etc]`
  - Camera tracking data: `cameraTransforms.json`
  - IMU log file: `videoName.txt`
+
+Then run `python src/ScaleFit.py path/to/videoName.ext`
 
 
 ### Tracking data format
