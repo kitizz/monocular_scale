@@ -3,14 +3,12 @@ from __future__ import division, print_function
 import numpy as np
 from numpy import linalg, dot, zeros, ones
 from numpy.linalg import norm
-import matplotlib.pyplot as plt
 
 from scipy import ndimage
 from scipy import signal
 
 import UtilScale as Util
 import IO
-import Plotting
 
 import sys
 
@@ -601,6 +599,8 @@ def printResult(uPrint):
 
 
 def showResults(internals, params={}, ylimUseful=True, show=True):
+    import Plotting
+
     useful = internals['useful']
     A,u = internals['A'], internals['u']
     times = internals['times']

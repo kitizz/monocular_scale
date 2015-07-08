@@ -32,3 +32,5 @@ A very simple format with each line being:
 
 The only `<Sensor Type>` this project pays attention to is `Accelerometer`. `timestamp` is in nanoseconds.
 
+### Fiddle Factor
+You may need to fiddle with the `Rci` parameter in ScaleFit for your particular setup. `Rci` is used to align the local IMU measurements with the camera's frame of reference. By default it is set for IMU data collected on iPhone 6 and video recorded in portrait mode on the rear-facing camera.
