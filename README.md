@@ -14,7 +14,7 @@ The data for a sequence should all be in one directory. It should contain
 
 
 ### Tracking data format
-Tracking data is expected to be in JSON format with 3 values
+Tracking data is expected to be in JSON format with 2 values
 ```json
 {
     "transforms": [ [[...],[...],[...]], ...],
@@ -30,5 +30,5 @@ Where
 A very simple format with each line being:
 `<Sensor Type> X Y Z timestamp`
 
-The only `<Sensor Type>` this project pays attention to is `Accelerometer`.
+The only `<Sensor Type>` this project pays attention to is `Accelerometer`. `timestamp` is in nanoseconds.
 
