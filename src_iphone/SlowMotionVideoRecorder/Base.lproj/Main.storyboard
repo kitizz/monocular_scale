@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Vpj-h4-VPd">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <scenes>
+        <!--Sequences-->
+        <scene sceneID="9bU-ba-sTq">
+            <objects>
+                <tableViewController id="eeK-tB-xzg" customClass="SequenceTableViewController" customModule="Camera_IMU" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="80" sectionHeaderHeight="22" sectionFooterHeight="22" id="qyr-ai-DWN">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="SequenceIdentifier" rowHeight="80" id="e8X-7A-5M7" customClass="SequenceCell" customModule="Camera_IMU" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="66" width="320" height="80"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="e8X-7A-5M7" id="Xyz-qh-Z5H">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="79.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RsE-8H-P22">
+                                            <rect key="frame" x="8" y="8" width="71" height="64"/>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PoL-wr-6X3">
+                                            <rect key="frame" x="87" y="29" width="190" height="21"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="thumbnail" destination="RsE-8H-P22" id="fJp-Mp-cLM"/>
+                                    <outlet property="title" destination="PoL-wr-6X3" id="45i-oD-AwH"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="eeK-tB-xzg" id="RRi-5J-IjI"/>
+                            <outlet property="delegate" destination="eeK-tB-xzg" id="D1v-lw-KNz"/>
+                        </connections>
+                    </tableView>
+                    <toolbarItems>
+                        <barButtonItem enabled="NO" title="Delete" id="Yir-L3-lur">
+                            <color key="tintColor" red="0.9456521739" green="0.27174682610000001" blue="0.429398485" alpha="1" colorSpace="calibratedRGB"/>
+                            <connections>
+                                <action selector="deletePressed:" destination="eeK-tB-xzg" id="bwy-G2-N35"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Mjd-fA-W0u"/>
+                        <barButtonItem tag="1" enabled="NO" title="Edit" id="gAB-2z-Rbc">
+                            <connections>
+                                <action selector="editPressed:" destination="eeK-tB-xzg" id="Ija-IF-2rx"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" title="Sequences" id="WlE-uk-A7B">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="add" id="jc9-M0-Z5u">
+                            <connections>
+                                <segue destination="AWC-AI-cAL" kind="push" id="cLe-44-3iv"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="deleteBtn" destination="Yir-L3-lur" id="iCO-BP-T5K"/>
+                        <outlet property="editBtn" destination="gAB-2z-Rbc" id="GfJ-kn-yhg"/>
+                        <outlet property="sequenceTableView" destination="qyr-ai-DWN" id="vYP-LQ-606"/>
+                        <segue destination="vXZ-lx-hvc" kind="push" identifier="editSequence" id="arj-rO-RlA"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xKF-eU-e7r" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="205" y="136"/>
+        </scene>
+        <!--Record a New Sequence-->
+        <scene sceneID="7vd-39-MAx">
+            <objects>
+                <viewController title="Record a New Sequence" id="AWC-AI-cAL" customClass="AddSequenceViewController" customModule="Camera_IMU" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="UjL-6g-uiQ"/>
+                        <viewControllerLayoutGuide type="bottom" id="ehZ-qV-T9m"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="vQ0-xs-gbc">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Name" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="tSJ-AW-cSt">
+                                <rect key="frame" x="95" y="153" width="131" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
+                                <connections>
+                                    <action selector="sequenceNameChanged:" destination="AWC-AI-cAL" eventType="editingChanged" id="c7X-az-mZn"/>
+                                </connections>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="New Sequence" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0I4-Ub-dvT">
+                                <rect key="frame" x="78" y="118" width="165" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n4B-MA-4Vg">
+                                <rect key="frame" x="16" y="209" width="288" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.9456521739" green="0.27174682610000001" blue="0.429398485" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="New Sequence" id="rpd-11-tFo">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Next" style="plain" id="n1X-UJ-EAe">
+                            <connections>
+                                <action selector="nextNavigation:" destination="AWC-AI-cAL" id="9qo-xV-vNc"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="errorLabel" destination="n4B-MA-4Vg" id="Me9-Qz-cIn"/>
+                        <outlet property="nextBtn" destination="n1X-UJ-EAe" id="sKK-za-P5m"/>
+                        <outlet property="sequenceName" destination="tSJ-AW-cSt" id="bW6-qh-70D"/>
+                        <segue destination="vXZ-lx-hvc" kind="push" identifier="nextSegue" id="waW-fi-tyx"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gBd-Uc-IVG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="205" y="926"/>
+        </scene>
+        <!--Recording-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="vXZ-lx-hvc" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="yfV-WF-Spe"/>
+                        <viewControllerLayoutGuide type="bottom" id="w55-o4-4ea"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="44" width="320" height="524"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GK2-EW-kJ2">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="38"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Instructions" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VVB-CE-qhn">
+                                        <rect key="frame" x="0.0" y="-2" width="320" height="40"/>
+                                        <fontDescription key="fontDescription" name="DINAlternate-Bold" family="DIN Alternate" pointSize="18"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                            </view>
+                            <view contentMode="scaleAspectFit" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hfG-Bx-iEM">
+                                <rect key="frame" x="0.0" y="372" width="320" height="77"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EP8-0F-KgL">
+                                        <rect key="frame" x="120" y="10" width="80" height="60"/>
+                                        <fontDescription key="fontDescription" name="DINAlternate-Bold" family="DIN Alternate" pointSize="18"/>
+                                        <state key="normal" image="ShutterButtonStart">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="recButtonTapped:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="PUu-Hi-BQ4"/>
+                                        </connections>
+                                    </button>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="outer1" translatesAutoresizingMaskIntoConstraints="NO" id="GVu-kg-lMp">
+                                        <rect key="frame" x="127" y="7" width="66" height="66"/>
+                                    </imageView>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RU6-Yb-Fgl">
+                                        <rect key="frame" x="208" y="24" width="104" height="30"/>
+                                        <state key="normal" title="Next Step">
+                                            <color key="titleColor" red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="nextStepTapped:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Sw7-en-an9"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jfk-gT-gr0">
+                                        <rect key="frame" x="8" y="25" width="111" height="30"/>
+                                        <state key="normal" title="Last Step">
+                                            <color key="titleColor" red="0.9456521739" green="0.27174682610000001" blue="0.429398485" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="lastStepTapped:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="hmp-96-7Fv"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <navigationItem key="navigationItem" title="Recording" id="0UZ-cg-9JV">
+                        <barButtonItem key="leftBarButtonItem" title="Sequences" id="xbj-yT-zch">
+                            <connections>
+                                <action selector="sequencesTapped:" destination="vXZ-lx-hvc" id="NIC-Xp-kdj"/>
+                                <segue destination="eeK-tB-xzg" kind="push" id="nDK-iM-HKc"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
+                    <connections>
+                        <outlet property="lastBtn" destination="Jfk-gT-gr0" id="biq-wm-yp8"/>
+                        <outlet property="nextBtn" destination="RU6-Yb-Fgl" id="WH1-UX-Tem"/>
+                        <outlet property="outerImageView" destination="GVu-kg-lMp" id="CeL-sF-9gu"/>
+                        <outlet property="recBtn" destination="EP8-0F-KgL" id="UP9-Od-R5j"/>
+                        <outlet property="sequencesBtn" destination="xbj-yT-zch" id="sMk-hL-cZu"/>
+                        <outlet property="statusLabel" destination="VVB-CE-qhn" id="cv7-w6-khF"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="976" y="926"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="9q1-xE-iJd">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Vpj-h4-VPd" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="mRU-3E-KRb">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="eeK-tB-xzg" kind="relationship" relationship="rootViewController" id="0pR-9Z-0iY"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="sej-HF-OYF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-273" y="136"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="ShutterButtonStart" width="50" height="50"/>
+        <image name="outer1" width="66" height="66"/>
+    </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="arj-rO-RlA"/>
+        <segue reference="nDK-iM-HKc"/>
+    </inferredMetricsTieBreakers>
+</document>
