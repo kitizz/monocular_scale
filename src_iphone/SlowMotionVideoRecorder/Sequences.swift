@@ -20,8 +20,8 @@ struct Sequence
 @objc class Sequences : NSObject
 {
     var sequences:[Sequence] = []
-    var fileMgr: NSFileManager = NSFileManager.defaultManager()
-    var appDir: NSURL = NSURL()
+    var fileMgr: FileManager = FileManager.default
+    var appDir: URL!
     
     var activeSequence: Int = -1
     var currentStep: Int = -1
@@ -29,10 +29,10 @@ struct Sequence
     override init(){
         super.init()
         // Document directory access: http://stackoverflow.com/a/27722526
-        self.appDir = self.fileMgr.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] 
+        self.appDir = self.fileMgr.urls(for: .documentDirectory, in: .userDomainMask)[0] 
         
         let f = indexFile()
-        if (!self.fileMgr.fileExistsAtPath(f)) {
+        if (!self.fileMgr.fileExists(atPath: f)) {
             // Start a new index
             writeJsonIndex()
         } else {
@@ -42,17 +42,19 @@ struct Sequence
         debug()
         
         if let directoryContents =
-            try? self.fileMgr.contentsOfDirectoryAtPath(self.appDir.path!) {
-                print(directoryContents)
+                try? self.fileMgr.contentsOfDirectory(atPath: self.appDir.path) {
+            print("Directories:")
+            print(directoryContents)
         }
     }
     
     func indexFile() -> String {
-        return (self.appDir.path! as NSString).stringByAppendingPathComponent("index.json")
+        return (self.appDir.path as NSString).appendingPathComponent("index.json")
     }
     
     func debug() {
         print("Sequences:")
+        print(sequences)
         for seq in sequences {
             print("\t\(seq.name)")
         }
@@ -61,39 +63,43 @@ struct Sequence
     func writeJsonIndex() {
         var names: [String] = []
         for seq in sequences {
-            names.append(seq.name)
+//            names.append(seq.name)
+            names.insert(seq.name, at: 0)
         }
         print("Writing JSON. Names: \(names)")
-        let json = ["sequences": names, "active": activeSequence, "currentStep": currentStep ]
-        if let data = try? NSJSONSerialization.dataWithJSONObject(json, options: .PrettyPrinted) {
-            self.fileMgr.createFileAtPath(indexFile(), contents:data, attributes:nil)
+        let json = ["sequences": names, "active": activeSequence, "currentStep": currentStep ] as [String : Any]
+        if let data = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
+            self.fileMgr.createFile(atPath: indexFile(), contents:data, attributes:nil)
         }
     }
     
     func readJsonIndex() {
         var missingDir = false
-        if let data = self.fileMgr.contentsAtPath(indexFile()) {
-            if let json = (try? NSJSONSerialization.JSONObjectWithData(data, options: .MutableContainers)) as! NSDictionary? {
-                sequences.removeAll(keepCapacity: true)
-                for name in (json["sequences"] as! [String]) {
-                    let dir = getDirFor(name)
-                    if self.fileMgr.fileExistsAtPath(dir) {
-                        sequences.append(Sequence(name: name))
+        if let data = self.fileMgr.contents(atPath: indexFile()) {
+            let json = JSON(data: data)
+            print("Iterating")
+            sequences.removeAll(keepingCapacity: true)
+            for (_, name):(String, JSON) in json["sequences"] {
+                if let namestr = name.string {
+                    let dir = getDirFor(namestr)
+                    if self.fileMgr.fileExists(atPath: dir) {
+                        sequences.insert(Sequence(name: namestr), at: 0)
+//                        sequences.append(Sequence(name: namestr))
                     } else {
                         missingDir = true
                     }
                 }
-                if let activeVal: AnyObject = json["active"] {
-                    activeSequence = activeVal as! Int
-                    if let currentVal: AnyObject = json["currentStep"] {
-                        currentStep = currentVal as! Int
-                    } else {
-                        currentStep = 0
-                    }
+            }
+            if let activeVal = json["active"].int {
+                activeSequence = activeVal
+                if let currentVal = json["currentStep"].int {
+                    currentStep = currentVal
                 } else {
-                    activeSequence = -1
-                    currentStep = -1
+                    currentStep = 0
                 }
+            } else {
+                activeSequence = -1
+                currentStep = -1
             }
         }
         
@@ -103,29 +109,29 @@ struct Sequence
         }
     }
     
-    func beginRecording(name: String) -> Bool {
-        for (index, seq) in self.sequences.enumerate() {
+    func beginRecording(_ name: String) -> Bool {
+        for (_, seq) in self.sequences.enumerated() {
             if seq.name == name {
                 print("Sequence with name \(name) already exists!")
                 return false
             }
         }
         
-        let newDir = (self.appDir.path! as NSString).stringByAppendingPathComponent(name)
+        let newDir = (self.appDir.path as NSString).appendingPathComponent(name)
         do {
-            try self.fileMgr.createDirectoryAtPath(newDir, withIntermediateDirectories: true, attributes: nil)
+            try self.fileMgr.createDirectory(atPath: newDir, withIntermediateDirectories: true, attributes: nil)
         } catch _ {
         }
-        sequences.append(Sequence(name: name))
+        sequences.insert(Sequence(name: name), at: 0)
         
-        activeSequence = sequences.count - 1
+        activeSequence = 0
         currentStep = 0
         writeJsonIndex()
         
         return true
     }
     
-    func changeActiveSequence(index: Int) -> Bool {
+    func changeActiveSequence(_ index: Int) -> Bool {
         if index < 0 || index >= sequences.count {
             return false
         }
@@ -135,9 +141,9 @@ struct Sequence
         return true
     }
     
-    func imageForSequence(index: Int) -> UIImage? {
-        let imagePath = (getDirFor(sequences[index].name) as NSString).stringByAppendingPathComponent("thumbnail.jpg")
-        if let data = NSData(contentsOfFile: imagePath) {
+    func imageForSequence(_ index: Int) -> UIImage? {
+        let imagePath = (getDirFor(sequences[index].name) as NSString).appendingPathComponent("thumbnail.jpg")
+        if let data = try? Data(contentsOf: URL(fileURLWithPath: imagePath)) {
             return UIImage(data: data)
         }
         return nil;
@@ -167,33 +173,33 @@ struct Sequence
         return getDirFor(sequences[activeSequence].name)
     }
     
-    func getDirFor(name: String) -> String {
-        return (self.appDir.path! as NSString).stringByAppendingPathComponent(name)
+    func getDirFor(_ name: String) -> String {
+        return (self.appDir.path as NSString).appendingPathComponent(name)
     }
 
-    func setScanForActiveSequence(url: NSURL!) {
+    func setScanForActiveSequence(_ url: URL!) {
         saveActiveFile(url, to: "scan.mp4")
     }
     
-    func setPortraitForActiveSequence(url: NSURL!) {
+    func setPortraitForActiveSequence(_ url: URL!) {
         if activeSequence < 0 { return }
         
-        let imagePath = (getActiveDir() as NSString).stringByAppendingPathComponent("portrait.jpg")
-        let thumbPath = (getActiveDir() as NSString).stringByAppendingPathComponent("thumbnail.jpg")
+        let imagePath = (getActiveDir() as NSString).appendingPathComponent("portrait.jpg")
+        let thumbPath = (getActiveDir() as NSString).appendingPathComponent("thumbnail.jpg")
         
-        if let srcPath = url.path {
-            let imageData: NSData? = self.fileMgr.contentsAtPath(srcPath)
+        if let srcPath = url?.path {
+            let imageData: Data? = self.fileMgr.contents(atPath: srcPath)
             if imageData == nil {
                 print("WARNING: Cannot read image from \(srcPath)")
                 return
             }
             
             do {
-                try self.fileMgr.removeItemAtPath(srcPath)
+                try self.fileMgr.removeItem(atPath: srcPath)
             } catch _ {
             }
             
-            let success = self.fileMgr.createFileAtPath(imagePath, contents:imageData, attributes:nil)
+            let success = self.fileMgr.createFile(atPath: imagePath, contents:imageData, attributes:nil)
             if !success {
                 print("WARNING: Unable to move portrait image \(srcPath) to \(imagePath)")
                 return
@@ -206,94 +212,93 @@ struct Sequence
                 let ratio = image.size.height/image.size.width
                 let size: CGSize = CGSize(width: 128, height: Int(128*ratio))
                 UIGraphicsBeginImageContext(size)
-                image.drawInRect(CGRectMake(0, 0, size.width, size.height))
+                image.draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
                 let thumbnail = UIGraphicsGetImageFromCurrentImageContext()
-                UIImageJPEGRepresentation(thumbnail!, 0.98)!.writeToFile(thumbPath, atomically: true)
+                try? UIImageJPEGRepresentation(thumbnail!, 0.98)!.write(to: URL(fileURLWithPath: thumbPath), options: [.atomic])
             } else {
                 print("WARNING: Unable to create UIImage from data...")
             }
         }
     }
     
-    func setScaleQRForActiveSequence(url: NSURL!) {
+    func setScaleQRForActiveSequence(_ url: URL!) {
         saveActiveFile(url, to: "qr.jpg")
     }
     
-    func setScaleVideoForActiveSequence(url: NSURL!) {
+    func setScaleVideoForActiveSequence(_ url: URL!) {
         saveActiveFile(url, to: "imu.mp4")
     }
     
-    func setIMULogForActiveSequence(imuLogUrl: NSURL!) {
+    func setIMULogForActiveSequence(_ imuLogUrl: URL!) {
         saveActiveFile(imuLogUrl, to: "imu.txt")
     }
     
-    func saveActiveFile(from: NSURL, to: String) {
+    func saveActiveFile(_ from: URL, to: String) {
         if activeSequence < 0 { return }
         
-        let videoPath = (getActiveDir() as NSString).stringByAppendingPathComponent(to)
+        let videoPath = (getActiveDir() as NSString).appendingPathComponent(to)
         
-        if let srcPath = from.path {
-            if !self.fileMgr.fileExistsAtPath(srcPath) {
-                print("Source doesn't exist: \(srcPath)")
-                return
-            }
-            
-            do {
-                // moveItemAtPath doesn't allow overwriting
-                try self.fileMgr.removeItemAtPath(videoPath)
-            } catch _ {
-            }
-            let success: Bool
-            do {
-                try self.fileMgr.moveItemAtPath(srcPath, toPath: videoPath)
-                success = true
-            } catch _ {
-                success = false
-            }
-            if !success {
-                print("WARNING: Unable to move file \(srcPath) to \(videoPath)")
-            } else {
-                print("Successfully moved file \(srcPath) to \(videoPath)")
-            }
+        let srcPath = from.path
+        if !self.fileMgr.fileExists(atPath: srcPath) {
+            print("Source doesn't exist: \(srcPath)")
+            return
+        }
+        
+        do {
+            // moveItemAtPath doesn't allow overwriting
+            try self.fileMgr.removeItem(atPath: videoPath)
+        } catch _ {
+        }
+        let success: Bool
+        do {
+            try self.fileMgr.moveItem(atPath: srcPath, toPath: videoPath)
+            success = true
+        } catch _ {
+            success = false
+        }
+        if !success {
+            print("WARNING: Unable to move file \(srcPath) to \(videoPath)")
+        } else {
+            print("Successfully moved file \(srcPath) to \(videoPath)")
         }
     }
     
-    func add(name: String) {
+    func add(_ name: String) {
         print("Adding sequence: \(name)...")
-        for (index, seq) in self.sequences.enumerate() {
+        for (index, seq) in self.sequences.enumerated() {
             if seq.name == name {
                 print("Sequence with name \(name) already exists!")
                 return
             }
         }
-        let newDir = (self.appDir.path! as NSString).stringByAppendingPathComponent(name)
+        let newDir = (self.appDir.path as NSString).appendingPathComponent(name)
         do {
-            try self.fileMgr.createDirectoryAtPath(newDir, withIntermediateDirectories: true, attributes: nil)
+            try self.fileMgr.createDirectory(atPath: newDir, withIntermediateDirectories: true, attributes: nil)
         } catch _ {
         }
-        sequences.append(Sequence(name: name))
+        sequences.insert(Sequence(name: name), at: 0)
         debug()
         // Update the index file
         writeJsonIndex()
     }
     
-    func remove(name: String) {
+    func remove(_ name: String) {
         print("Deleting \(name)")
         // Delete folder?
-        let newDir = (self.appDir.path! as NSString).stringByAppendingPathComponent(name)
+        let newDir = (self.appDir.path as NSString).appendingPathComponent(name)
         let success: Bool
         do {
-            try self.fileMgr.removeItemAtPath(newDir)
+            try self.fileMgr.removeItem(atPath: newDir)
             success = true
         } catch _ {
             success = false
         }
         print("Removing \(newDir). Success: \(success)")
 
-        for (index, seq) in self.sequences.enumerate() {
+        for (index, seq) in self.sequences.enumerated() {
             if seq.name == name {
                 print("Found \(name). Deleting...")
-                sequences.removeAtIndex(index)
+                sequences.remove(at: index)
                 
                 // Update the index file
                 writeJsonIndex()
@@ -302,27 +307,27 @@ struct Sequence
         }
     }
     
-    func removeIndex(index: Int) {
+    func removeIndex(_ index: Int) {
         let name = sequences[index].name
         print("Deleting \(name)")
         // Delete folder?
-        let newDir = (self.appDir.path! as NSString).stringByAppendingPathComponent(name)
+        let newDir = (self.appDir.path as NSString).appendingPathComponent(name)
         let success: Bool
         do {
-            try self.fileMgr.removeItemAtPath(newDir)
+            try self.fileMgr.removeItem(atPath: newDir)
             success = true
         } catch _ {
             success = false
         }
         print("Removing \(newDir). Success: \(success)")
 
-        sequences.removeAtIndex(index)
+        sequences.remove(at: index)
         
         // Update the index file
         writeJsonIndex()
     }
     
-    func at(index: Int) -> Sequence {
+    func at(_ index: Int) -> Sequence {
         return sequences[index]
     }
     

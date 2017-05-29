@@ -43,6 +43,7 @@
 @property (nonatomic, strong) AVCaptureDevice *frontCam;
 @property (nonatomic, strong) AVCaptureDevice *rearCam;
 @property (nonatomic, strong) AVCaptureDeviceInput *currentInput;
+@property (nonatomic) int32_t target_fps;
 @end
 
 
@@ -53,6 +54,8 @@
     self = [super init];
     
     if (self) {
+        
+        self.target_fps = 120;
         
         NSError *error;
         
@@ -227,7 +230,14 @@
             self.rearCam.activeFormat = selectedFormat;
             self.rearCam.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
             self.rearCam.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
-//            [videoDevice setExposureMode:AVCaptureExposureModeLocked];
+            
+            if ([self.rearCam isFocusModeSupported: AVCaptureFocusModeContinuousAutoFocus]) {
+                self.rearCam.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+            } else if ([self.rearCam isFocusModeSupported: AVCaptureFocusModeAutoFocus]) {
+                self.rearCam.focusMode = AVCaptureFocusModeAutoFocus;
+            }
+            [self.rearCam setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+
             [self.rearCam unlockForConfiguration];
         }
     }
@@ -238,7 +248,7 @@
 - (void)switchToRearCam {
     if (usingRearCam) return;
     
-    [self switchFormatWithDesiredFPS:120.0];
+    [self switchFormatWithDesiredFPS:self.target_fps];
 }
 
 - (void)switchToFrontCam {
@@ -273,6 +283,20 @@
     if ([device isFocusModeSupported: AVCaptureFocusModeLocked]) {
         device.focusMode = AVCaptureFocusModeLocked;
     }
+    [device setExposureMode:AVCaptureExposureModeLocked];
+    [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeLocked];
+    [device setAutomaticallyAdjustsVideoHDREnabled:NO];
+    
+    [device setAutomaticallyAdjustsVideoHDREnabled:NO];
+    
+    if (device.isLowLightBoostSupported) {
+        [device setAutomaticallyEnablesLowLightBoostWhenAvailable:NO];
+    }
+//
+//    [device setExposureModeCustomWithDuration:CMTimeMake(1, (int32_t)self.target_fps) ISO: device.ISO completionHandler:^(CMTime syncTime) {
+//        // Code
+//    }];
+
     [device unlockForConfiguration];
     
     [self.fileOutput connectionWithMediaType:AVMediaTypeVideo].videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
@@ -284,8 +308,18 @@
 }
 
 - (void)stopRecording {
-
     [self.fileOutput stopRecording];
+    
+    AVCaptureDevice *device = self.currentInput.device;
+    [device lockForConfiguration:nil];
+    if ([device isFocusModeSupported: AVCaptureFocusModeLocked]) {
+        device.focusMode = AVCaptureFocusModeLocked;
+    }
+    [device setExposureMode:AVCaptureExposureModeLocked];
+    
+    [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+    
+    [device unlockForConfiguration];
 }
 
 - (BOOL)captureImage {

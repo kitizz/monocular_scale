@@ -28,7 +28,7 @@ class SequenceTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.setToolbarHidden(false, animated: true)
@@ -41,15 +41,15 @@ class SequenceTableViewController: UITableViewController {
     
     func updateUI() {
         if selected >= 0 {
-            deleteBtn.enabled = true
-            editBtn.enabled = true
+            deleteBtn.isEnabled = true
+            editBtn.isEnabled = true
         } else {
-            deleteBtn.enabled = false
-            editBtn.enabled = false
+            deleteBtn.isEnabled = false
+            editBtn.isEnabled = false
         }
     }
     
-    @IBAction func deletePressed(sender: UIBarButtonItem) {
+    @IBAction func deletePressed(_ sender: UIBarButtonItem) {
         if selected >= 0 {
             sequences.removeIndex(selected)
             tableView.reloadData()
@@ -58,9 +58,9 @@ class SequenceTableViewController: UITableViewController {
         }
     }
     
-    @IBAction func editPressed(sender: UIBarButtonItem) {
+    @IBAction func editPressed(_ sender: UIBarButtonItem) {
         if sequences.changeActiveSequence(selected) {
-            self.performSegueWithIdentifier("editSequence", sender: sender)
+            self.performSegue(withIdentifier: "editSequence", sender: sender)
         }
     }
 
@@ -71,25 +71,25 @@ class SequenceTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         return self.sequences.count()
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> SequenceCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("SequenceIdentifier", forIndexPath: indexPath) as! SequenceCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> SequenceCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SequenceIdentifier", for: indexPath) as! SequenceCell
 
         // Configure the cell...
         cell.title.text = self.sequences.at(indexPath.row).name
         if let image = self.sequences.imageForSequence(indexPath.row) {
-            cell.thumbnail.contentMode = .ScaleAspectFill
+            cell.thumbnail.contentMode = .scaleAspectFill
             cell.thumbnail.clipsToBounds = true
             cell.thumbnail.image = image
         }
@@ -97,7 +97,7 @@ class SequenceTableViewController: UITableViewController {
         return cell
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selected = indexPath.row
         updateUI()
 //        tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)

@@ -16,13 +16,13 @@ class AddSequenceViewController: UIViewController, UINavigationControllerDelegat
         sequenceName.delegate = self
     }
     
-    @IBAction func sequenceNameChanged(sender: AnyObject) {
+    @IBAction func sequenceNameChanged(_ sender: AnyObject) {
         // Check if the input name is valid, and enable to the button if so
-        nextBtn.enabled = !sequenceName.text!.isEmpty
+        nextBtn.isEnabled = !sequenceName.text!.isEmpty
         errorLabel.text = ""
     }
     
-    @IBAction func nextNavigation(sender: AnyObject) {
+    @IBAction func nextNavigation(_ sender: AnyObject) {
         next()
     }
 
@@ -31,7 +31,7 @@ class AddSequenceViewController: UIViewController, UINavigationControllerDelegat
         let success = seq.beginRecording(sequenceName.text!)
 
         if success {
-            self.performSegueWithIdentifier("nextSegue", sender: self)
+            self.performSegue(withIdentifier: "nextSegue", sender: self)
             return true
             
         } else {
@@ -40,7 +40,7 @@ class AddSequenceViewController: UIViewController, UINavigationControllerDelegat
         }
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if next() {
             textField.resignFirstResponder()
             return true
